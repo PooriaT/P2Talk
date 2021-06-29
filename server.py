@@ -33,11 +33,12 @@ def serverNodeConnection(host, port):
 		connectionDic[username] = clientConn
 		print(connectionDic)
 
+		# Defining Cryptography protocol with available key
+		f = Fernet(symKeyEnc)
+
 		#Concurrency in order to accepting several clients' connection
-		multiThreadClient = threading.Thread(target=multi_threaded_client, args=(clientConn, username ,connectionDic))
+		multiThreadClient = threading.Thread(target=multi_threaded_client, args=(clientConn ,connectionDic,f))
 		multiThreadClient.start()
-
-
 
 		ThreadCount += 1
 		print('Thread Number: ' + str(ThreadCount))
@@ -46,24 +47,19 @@ def serverNodeConnection(host, port):
 ################################
 # Sending message to client
 ################################
-def multi_threaded_client(connection, user, connDic):
+def multi_threaded_client(connection, connDic, fernetObj):
 	#connection.send(str.encode('Server is working...'))
 	while True:
-		data = connection.recv(2048)
+		data = connection.recv(4096)
 		print(data)
-		# Defining Cryptography protocol with available key
-		f = Fernet(symKeyEnc)
-		data = f.decrypt(data)
-		message = bytes(f'\nmessage from {user}: ','utf-8') + data
-		response = f.encrypt(message)
 
 		if not data:
 			break
 		for name, conn in connDic.items():
 			if conn != connection:
-				conn.sendall(response)
+				conn.sendall(data)
 			else:
-				conn.sendall(f.encrypt(str.encode(' ')))
+				conn.sendall(fernetObj.encrypt(str.encode(' ')))
 	connection.close()
 
 

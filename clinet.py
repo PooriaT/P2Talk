@@ -18,21 +18,20 @@ def clientNodeConnectrion(host, port, username):
 
     #This the first message which is sent to server to mention its username
     username = sendUsername(clientSocket, username)
+    # Defining Cryptography protocol with available key
+    f = Fernet(symKeyEnc)
 
     while True:
-        # Defining Cryptography protocol with available key
-        f = Fernet(symKeyEnc)
-
         Input = ''
         while Input == '':
             # The while loop is for inserting at least one character
             Input = input(f'Hey {username}: ')
-            
-        clientSocket.send(f.encrypt(str.encode(Input)))
-        res = clientSocket.recv(1024)
+
+        clientSocket.send(f.encrypt(str.encode(f'\nmessage from {username}: ' + Input)))
+        res = clientSocket.recv(4096)
+        print(res)
         res = f.decrypt(res)
         print(res.decode('utf-8'))
-
 
     clientSocket.close()
 
