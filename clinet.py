@@ -1,5 +1,7 @@
 import socket
 import threading
+from cryptography.fernet import Fernet
+
 
 ################################
 # Establishing Client connection
@@ -18,13 +20,18 @@ def clientNodeConnectrion(host, port, username):
     username = sendUsername(clientSocket, username)
 
     while True:
-        res = clientSocket.recv(1024)
-        print(res.decode('utf-8'))
+        # Defining Cryptography protocol with available key
+        f = Fernet(symKeyEnc)
+
         Input = ''
         while Input == '':
             # The while loop is for inserting at least one character
             Input = input(f'Hey {username}: ')
-        clientSocket.send(str.encode(Input))
+            
+        clientSocket.send(f.encrypt(str.encode(Input)))
+        res = clientSocket.recv(1024)
+        res = f.decrypt(res)
+        print(res.decode('utf-8'))
 
 
     clientSocket.close()
@@ -50,13 +57,17 @@ def sendUsername(client_S, user):
 
 
 
-
-
 #*****************************************************
 ################################
 # Main route
 ################################
 if __name__=='__main__':
+    #Defining the generated key by the server for encryption messages
+    global symKeyEnc
+    with open('SKE.txt', 'rb') as file:
+        symKeyEnc = file.read()
+
+    #Defining host and port
     host = '127.0.0.1'
     port = 2004
     username = input('Enter Your name: ')

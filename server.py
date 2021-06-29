@@ -1,6 +1,7 @@
 import socket
 #import os
 import threading
+from cryptography.fernet import Fernet
 
 ################################
 # Establishing Sever connections
@@ -46,18 +47,23 @@ def serverNodeConnection(host, port):
 # Sending message to client
 ################################
 def multi_threaded_client(connection, user, connDic):
-	connection.send(str.encode('Server is working...'))
+	#connection.send(str.encode('Server is working...'))
 	while True:
 		data = connection.recv(2048)
-		#print(data)
-		response = f'\nmessage from {user}: ' + data.decode('utf-8')
+		print(data)
+		# Defining Cryptography protocol with available key
+		f = Fernet(symKeyEnc)
+		data = f.decrypt(data)
+		message = bytes(f'\nmessage from {user}: ','utf-8') + data
+		response = f.encrypt(message)
+
 		if not data:
 			break
 		for name, conn in connDic.items():
 			if conn != connection:
-				conn.sendall(str.encode(response))
+				conn.sendall(response)
 			else:
-				conn.sendall(str.encode(' '))
+				conn.sendall(f.encrypt(str.encode(' ')))
 	connection.close()
 
 
@@ -81,6 +87,13 @@ def takeUsername(connection, connDic):
 # Main route
 ################################
 if __name__ == '__main__':
+	#Generating key for symetric Encryption
+	global symKeyEnc
+	symKeyEnc = Fernet.generate_key()
+	with open('SKE.txt', 'wb') as file:
+		file.write(symKeyEnc)
+
+	#Defining host and port
 	host = '0.0.0.0'
 	port = 2004
 	serverNodeConnection(host, port)
