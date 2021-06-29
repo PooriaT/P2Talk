@@ -30,8 +30,11 @@ def clientNodeConnectrion(host, port, username):
         clientSocket.send(f.encrypt(str.encode(f'\nmessage from {username}: ' + Input)))
         res = clientSocket.recv(4096)
         print(res)
-        res = f.decrypt(res)
-        print(res.decode('utf-8'))
+
+        for mesg in res.decode('utf-8').split('gAAAAABg'):
+            if mesg == "":
+                continue
+            print(f.decrypt(str.encode('gAAAAABg' + mesg)).decode('utf-8'))
 
     clientSocket.close()
 
