@@ -56,8 +56,6 @@ def multi_threaded_client(connection, user, connDic):
 		for name, conn in connDic.items():
 			if conn != connection:
 				conn.sendall(str.encode(response))
-			else:
-				conn.sendall(str.encode(' '))
 	connection.close()
 
 
