@@ -26,7 +26,7 @@ def clientNodeConnectrion(host, port, username):
         print(res.decode('utf-8'))
         frontClient = ''
         while frontClient == '':
-            frontClient = input("To Whom you want send a message: ")
+            frontClient = input("To Whom you want send a message (Enter *all* for broadcasting): ")
         Input = ''
         while Input == '':
             # The while loop is for inserting at least one character
