@@ -52,19 +52,20 @@ def multi_threaded_client(connection, user, connDic):
 		data = connection.recv(2048)
 		print(data)
 		frontUSer = re.findall(r'^@(\w+):', data.decode('utf-8'))[0]
-		frontUSer = str.encode(frontUSer)
 		print(frontUSer)
 		response = f'\nmessage from {user}: ' + re.findall(r'^@\w+:([\w\s]+)', data.decode('utf-8'))[0]
 		if not data:
 			break
 
 		connection.sendall(str.encode(' '))
-		# if frontUSer not in connDic.keys():
-		# 	connection.sendall(str.encode(' '))
-		# else:
-		for name, conn in connDic.items():
-			if name == frontUSer:
-				conn.sendall(str.encode(response))
+		if frontUSer == 'all':
+			for name, conn in connDic.items():
+				if conn != connection:
+					conn.sendall(str.encode(response))
+		else:
+			for name, conn in connDic.items():
+				if name == str.encode(frontUSer):
+					conn.sendall(str.encode(response))
 
 
 	connection.close()
