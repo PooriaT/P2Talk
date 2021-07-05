@@ -18,13 +18,22 @@ def clientNodeConnectrion(host, port, username):
     username = sendUsername(clientSocket, username)
 
     while True:
+        # #clientSocket.send(str.encode(frontClient))
+        # clientSocket.send(str.encode(message))
+
+
         res = clientSocket.recv(1024)
         print(res.decode('utf-8'))
+        frontClient = ''
+        while frontClient == '':
+            frontClient = input("To Whom you want send a message: ")
         Input = ''
         while Input == '':
             # The while loop is for inserting at least one character
-            Input = input(f'Hey {username}: ')
-        clientSocket.send(str.encode(Input))
+            Input = input(f'Hey {username}, say something: ')
+
+        message = '@' + frontClient + ':' + Input
+        clientSocket.send(str.encode(message))
 
 
     clientSocket.close()

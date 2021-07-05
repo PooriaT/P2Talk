@@ -1,6 +1,7 @@
 import socket
 #import os
 import threading
+import re
 
 ################################
 # Establishing Sever connections
@@ -49,13 +50,24 @@ def multi_threaded_client(connection, user, connDic):
 	connection.send(str.encode('Server is working...'))
 	while True:
 		data = connection.recv(2048)
-		#print(data)
-		response = f'\nmessage from {user}: ' + data.decode('utf-8')
+		print(data)
+		frontUSer = re.findall(r'^@(\w+):', data.decode('utf-8'))[0]
+		print(frontUSer)
+		response = f'\nmessage from {user}: ' + re.findall(r'^@\w+:([\w\s]+)', data.decode('utf-8'))[0]
 		if not data:
 			break
-		for name, conn in connDic.items():
-			if conn != connection:
-				conn.sendall(str.encode(response))
+
+		connection.sendall(str.encode(' '))
+		if frontUSer == 'all':
+			for name, conn in connDic.items():
+				if conn != connection:
+					conn.sendall(str.encode(response))
+		else:
+			for name, conn in connDic.items():
+				if name == str.encode(frontUSer):
+					conn.sendall(str.encode(response))
+
+
 	connection.close()
 
 
